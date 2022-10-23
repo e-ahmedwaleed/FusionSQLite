@@ -1,6 +1,8 @@
-from PyQt5 import QtCore, QtGui, QtWidgets
-from PyQt5.QtWidgets import QApplication, QWidget, QPushButton, QTableWidgetItem, QHeaderView, QFileDialog, QMessageBox
-from PyQt5.QtCore import pyqtSlot, pyqtSignal
+import threading
+
+from PyQt5 import QtCore, QtWidgets
+from PyQt5.QtWidgets import QTableWidgetItem, QFileDialog, QMessageBox
+from PyQt5.QtCore import pyqtSignal
 from main import runSQL, initFusion
 from bs4 import BeautifulSoup
 import xmltodict
@@ -11,6 +13,7 @@ import xlwt
 
 class Ui_FusionSQL(object):
     button_click = pyqtSignal(str)
+
     def setupUi(self, FusionSQL):
         FusionSQL.setObjectName("FusionSQL")
         FusionSQL.setWindowModality(QtCore.Qt.ApplicationModal)
@@ -72,7 +75,7 @@ class Ui_FusionSQL(object):
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.progressBar.sizePolicy().hasHeightForWidth())
         self.progressBar.setSizePolicy(sizePolicy)
-        #self.progressBar.setProperty("value", 24)
+        # self.progressBar.setProperty("value", 24)
         self.progressBar.setObjectName("progressBar")
         self.instanceEdit = QtWidgets.QLineEdit(self.groupBox)
         self.instanceEdit.setGeometry(QtCore.QRect(40, 20, 701, 22))
@@ -102,7 +105,8 @@ class Ui_FusionSQL(object):
         sizePolicy.setHeightForWidth(self.passwordEdit.sizePolicy().hasHeightForWidth())
         self.passwordEdit.setSizePolicy(sizePolicy)
         self.passwordEdit.setSizeIncrement(QtCore.QSize(10000, 10000))
-        self.passwordEdit.setInputMethodHints(QtCore.Qt.ImhHiddenText|QtCore.Qt.ImhNoAutoUppercase|QtCore.Qt.ImhNoPredictiveText|QtCore.Qt.ImhSensitiveData)
+        self.passwordEdit.setInputMethodHints(
+            QtCore.Qt.ImhHiddenText | QtCore.Qt.ImhNoAutoUppercase | QtCore.Qt.ImhNoPredictiveText | QtCore.Qt.ImhSensitiveData)
         self.passwordEdit.setEchoMode(QtWidgets.QLineEdit.Password)
         self.passwordEdit.setObjectName("passwordEdit")
         self.label = QtWidgets.QLabel(self.groupBox)
@@ -168,8 +172,8 @@ class Ui_FusionSQL(object):
         retval = msg.exec_()
 
     def savefile(self):
-        filename,_ = QFileDialog.getSaveFileName(None, 'Save File', '', ".xls(*.xls)")
-        if filename is not None or len(filename)>=0:
+        filename, _ = QFileDialog.getSaveFileName(None, 'Save File', '', ".xls(*.xls)")
+        if filename is not None or len(filename) >= 0:
             wbk = xlwt.Workbook()
             sheet = wbk.add_sheet("sheet", cell_overwrite_ok=True)
             style = xlwt.XFStyle()
@@ -179,19 +183,18 @@ class Ui_FusionSQL(object):
             model = self.tableWidget.model()
             for c in range(model.columnCount()):
                 text = model.headerData(c, QtCore.Qt.Horizontal)
-                sheet.write(0, c+1, text, style=style)
+                sheet.write(0, c + 1, text, style=style)
 
             for r in range(model.rowCount()):
                 text = model.headerData(r, QtCore.Qt.Vertical)
-                sheet.write(r+1, 0, text, style=style)
+                sheet.write(r + 1, 0, text, style=style)
 
             for c in range(model.columnCount()):
                 for r in range(model.rowCount()):
                     text = model.data(model.index(r, c))
-                    sheet.write(r+1, c+1, text)
+                    sheet.write(r + 1, c + 1, text)
             wbk.save(filename)
             self.showdialog()
-
 
     def initializeFusion(self):
         instanceURLtext = self.instanceEdit.text()
@@ -215,16 +218,16 @@ class Ui_FusionSQL(object):
         self.progressBar.setProperty("value", 30)
         resultXML = runSQL(instanceURLtext, sqlquery, fusionUserText, fusionPWtext)
         self.progressBar.setProperty("value", 45)
-        s1 = BeautifulSoup(resultXML,'xml')
+        s1 = BeautifulSoup(resultXML, 'xml')
         rb = s1.findAll('ROW')
         self.progressBar.setProperty("value", 60)
         try:
             columns = [tag.name for tag in s1.find_all()]
-            notN = set(['ROW','ROWSET'])
+            notN = set(['ROW', 'ROWSET'])
             columns = [x for x in columns if not (x in notN)]
             columns = list(dict.fromkeys(columns))
-            #columns = set(filter(lambda a: a != 'ROW' and a != 'ROWSET', columns))
-            #columns = list(columns)
+            # columns = set(filter(lambda a: a != 'ROW' and a != 'ROWSET', columns))
+            # columns = list(columns)
             self.tableWidget.setColumnCount(len(columns))
             resJson = json.loads(json.dumps(xmltodict.parse(resultXML)))
             rowset = resJson['ROWSET']
@@ -244,7 +247,8 @@ class Ui_FusionSQL(object):
             self.tableWidget.setColumnCount(2)
             self.progressBar.setProperty("value", 80)
             if resultXML is None:
-                self.tableWidget.setItem(0, 0, QTableWidgetItem("Error running the SQL query. Please validate the URL, Credentials, Query or your network connection"))
+                self.tableWidget.setItem(0, 0, QTableWidgetItem(
+                    "Error running the SQL query. Please validate the URL, Credentials, Query or your network connection"))
             else:
                 self.tableWidget.setItem(0, 0, QTableWidgetItem(resultXML))
         self.progressBar.setProperty("value", 85)
