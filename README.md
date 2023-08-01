@@ -3,7 +3,7 @@ Run SQL queries on Oracle Fusion Database from your desktop, based on [anandvega
 > Note: [releases](https://ahmedwaleed.csed22.com/fsql) will be included in this repository, but source code will not be available. **(private fork)**
 
 <p align="center">
-  <img src="versions/2.2.2.png">
+  <img src="versions/current.png">
 </p>
 
 ## Requirements 
@@ -26,8 +26,6 @@ Since the output is generated via Oracle Report, it will face the same limitatio
 ## TODO
 
 - PLSQL support
-
-- Export output
 
 - Auto completion
 
