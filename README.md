@@ -47,6 +47,8 @@ Since the output is generated via Oracle Report, it will face the same limitatio
 
 ## Known Issues
 
+- Tables with clob columns fail to run
+
 - Not all reserved keywords are highlighted
 
 - Multiline comments are not syntax highlighted
